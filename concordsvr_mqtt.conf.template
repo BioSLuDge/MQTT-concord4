@@ -1,19 +1,20 @@
 [main]
 # MQTT information
-host=mqtt.eclipse.org
-port=1883
-mqttuser=mqtt_username_as_base_64
-mqttpassword=mqtt_password_as_base_64
+host=${MQTT_HOST}
+port=${MQTT_PORT}
+mqttuser=${MQTT_USER}
+mqttpassword=${MQTT_PASS}
+mqtttls=${MQTT_TLS}
 
 # Serial port path to communicate with the RS232 AM module.
-serialport=/dev/ttyUSB0
+serialport=${SERIAL}
 
 # Log level (DEBUG,INFO,ERROR)
-loglevel=INFO
+loglevel=${LOG}
 
 # G-mail e-mail notification information
 # The send_email method uses G-mail SMTP which requires a less secure account to send
 # The values are in base64 to provide a very low level of security, but this file should not be readable by anyone
-emailsender=my_send_email_as_base_64@gmail.com
-emailpassword=my_password_as_base_64
-emailrecipient=target_email_as_base_64@somewhere.com
+emailsender=${GMAIL_SENDER}
+emailpassword=${GMAIL_PASS}
+emailrecipient=${GMAIL_RECIPIENT}

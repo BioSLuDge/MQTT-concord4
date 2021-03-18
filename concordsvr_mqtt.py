@@ -29,6 +29,7 @@ from collections import deque
 import datetime
 import traceback
 import string
+import ssl
 import base64
 import logging,logging.handlers
 import ConfigParser
@@ -111,7 +112,13 @@ def send_mqtt_update(topic, value):
     logger('TX -> '+str(config.HOST)+':'+str(config.PORT)+' - '+topic+' - '+value)
 
     try:
-        publish.single(topic, value, hostname=config.HOST, port=config.PORT, retain=True, auth = {'username':config.MQTTUSER.decode('base64'),'password':config.MQTTPASSWORD.decode('base64')})
+        if config.MQTTTLS:
+            context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+            context.verify_mode = ssl.CERT_REQUIRED
+            context.load_default_certs()
+            publish.single(topic, value, hostname=config.HOST, port=config.PORT, retain=True, auth = {'username':config.MQTTUSER.decode('base64'),'password':config.MQTTPASSWORD.decode('base64')}, tls=context)
+        else:
+            publish.single(topic, value, hostname=config.HOST, port=config.PORT, retain=True, auth = {'username':config.MQTTUSER.decode('base64'),'password':config.MQTTPASSWORD.decode('base64')})
     except:
         logger("MQTT failed to publish message...")
 
@@ -229,6 +236,7 @@ class Concord4ServerConfig():
         self.EMAILRECIPIENT = self.read_config_var('main', 'emailrecipient', '', 'str')
         self.MQTTUSER = self.read_config_var('main', 'mqttuser', '', 'str')
         self.MQTTPASSWORD = self.read_config_var('main', 'mqttpassword', '', 'str')
+        self.MQTTTLS = self.read_config_var('main', 'mqtttls', '', 'bool')
 
     def defaulting(self, section, variable, default, quiet = False):
         if quiet == False:
@@ -792,6 +800,9 @@ class ConcordMQTT(object):
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
         self.client.on_log = self.on_log
+        
+        if config.MQTTTLS:
+            self.client.tls_set()
 
         self.client.username_pw_set(config.MQTTUSER.decode('base64'),config.MQTTPASSWORD.decode('base64'))
 
