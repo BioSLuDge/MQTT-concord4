@@ -4,30 +4,35 @@ This is based off the original [device-concord4 here](https://github.com/automat
 
 Which is forked from the [original here](https://github.com/csdozier/device-concord4).
 
+And this itteration was forked from https://github.com/automaton82/MQTT-concord4
+
 The original concord4 was made for SmartThings via a web-server. Since SmartThings is now sun-setting classic along with custom DTH UIs, it no longer works.
 
-As such I'm moving to Home Assistant and still want to use this integration. Since MQTT is very easy to use with HA, I've modified the primary server to use MQTT instead of RESTful.
+I forked the last project, from automation82, added tls support and put it in a docker container.
 
 ## Prerequisites
 
  - Hardware (Concord 4 or equivalent panel) with a Superbus 2000 automation module attached to it
  - RS232 connection (to the AM panel)
- - Python 2.7
- - Python packages: requests, future, pyserial (pip install), paho-mqtt (pip install)
- - Raspberry Pi (recommended)
+ - Docker
 
 ## Installation
 
-1. Edit *concordsvr_mqtt.conf* with your favourite editor, such as *nano concordsvr_mqtt.conf*
-    * Set *host* to the host of your MQTT, and the *port*
-    * Set *mqttuser* to the base64 encoded name of the user to login, and *mqttpassword* to the base64 encoded password of that user
-2.  Start the program using **python concordsvr_mqtt.py**
-3.  If desired, it can be started on every boot by using *crontab -e* and adding:
-    * *@reboot cd /home/pi/ && ./start_concordsvr &*
-    
-    Where *start_concordsvr* contains:
-    * *#!/bin/bash*
-    * *cd /home/pi/concordsvr/ && python ./concordsvr_mqtt.py*
+1. Install docker, and run the image.  Env vars MQTT_HOST, MQTT_USER, MQTT_PASS, and SERIAL_PORT are required.  MQTT_TLS defaults to true, and MQTT_PORT defaults to 8883.
+
+docker run -d -v\ 
+   --env MQTT_HOST="my.mqtthost.com" \
+   --env MQTT_PORT="1883" \
+   --env MQTT_USER="myUser" \
+   --env MQTT_PASS="myPass" \
+   --env MQTT_TLS="true" \
+   --env SERIAL_PORT="/dev/ttyUSB0" \
+   --env LOG_LEVEL="INFO" \
+   --env EMAIL_SENDER="sender@gmail.com" \
+   --env EMAIL_PASS="Email sender password" \
+   --env EMAIL_RECIPIENT="Email recipient" \
+   --device=/dev/ttyUSB0 \
+   biosludge/mqtt-concord4
 
 ## Home Assistant
 
@@ -82,4 +87,4 @@ With payloads of:
 
 ## Notes
 
-The previous ST version supported 'loud' as an option for arming / disarming, but I didn't implement that as my panel doesn't support it anyways. If desired it could be added back as the payload for the various topics.
+The previous ST version supported 'loud' as an option for arming / disarming, but the last package didn't implement that as their panel doesn't support it anyways. If desired it could be added back as the payload for the various topics.

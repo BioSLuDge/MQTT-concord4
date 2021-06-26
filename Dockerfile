@@ -1,11 +1,11 @@
-FROM python:2.7-alpine3.9
+FROM alpine:latest
 
 WORKDIR /usr/src/app
 
-ADD ./* ./
+ADD ./ ./
 
-RUN pip install --no-cache-dir requests future pyserial paho-mqtt &&\
-    apk add --no-cache gettext && \
+RUN apk add --no-cache gettext python py-pip && \
+    pip install --no-cache-dir requests future pyserial paho-mqtt && \
 	chmod 500 run.sh
 
 CMD ["./run.sh"]
